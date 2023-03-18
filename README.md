@@ -8,19 +8,15 @@ SaudiEInvoice is a Python library that helps you create and submit invoices to t
 
 **Before using SaudiEInvoice, you need to have the following:**
 
-Python 3.6 or higher
-OpenSSL library
-A GAZT account
-A valid private key file (.pfx format) and its password
-An e-invoicing API URL provided by GAZT
+- Python 3.6 or higher
+- OpenSSL library
+- A GAZT account
+- A valid private key file (.pfx format) and its password
+- An e-invoicing API URL provided by GAZT
 
 ### Installation
 
-To install SaudiEInvoice, you can simply use pip:
-
-```
-pip install saudieinvoice
-```
+To install SaudiEInvoice, you can simply clone this repo.
 
 ### Usage
 
