@@ -1,0 +1,13 @@
+import subprocess
+
+# Generate private key
+subprocess.run([r'C:\Users\moham\scoop\apps\openssl\current\bin\openssl.exe', 'ecparam', '-name', 'secp256k1',
+               '-genkey', '-noout', '-out', 'PrivateKey.pem'])
+
+# Generate public key from private key
+subprocess.run([r'C:\Users\moham\scoop\apps\openssl\current\bin\openssl.exe', 'ec', '-in', 'PrivateKey.pem',
+               '-pubout', '-out', 'publickey.pem'])
+
+# Generate CSR
+subprocess.run([r'C:\Users\moham\scoop\apps\openssl\current\bin\openssl.exe', 'req', '-new', '-sha256', '-key', 'PrivateKey.pem',
+               '-extensions', 'v3_req', '-config', 'Configuration.cnf', '-out', 'taxpayer.csr'])
