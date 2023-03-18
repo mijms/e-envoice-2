@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+.vscode/
+PrivateKey.pem
+publickey.pem
+taxpayer.csr
