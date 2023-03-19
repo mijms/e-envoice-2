@@ -4,6 +4,7 @@ import requests
 import xml.etree.ElementTree as ET
 from OpenSSL import crypto
 import hashlib
+import qrcode
 
 
 class SaudiEInvoice:
@@ -167,10 +168,7 @@ class SaudiEInvoice:
         return encoded_invoice_data
 
     def generate_qr_code(self, encoded_invoice_data):
-        # Generate QR code for encoded invoice data
-        # Add the QR code to the invoice
-        qr_code = "QR code data"
-        # Modify qr_code variable to generate the actual QR code
+        pass
         return qr_code
 
     def create_signed_properties(self, pkey):
