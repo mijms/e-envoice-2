@@ -32,12 +32,21 @@ class SaudiEInvoice:
 
     def get_keys(self):
         with open(self.config_file_path) as f:
-            return json.load(f).values()
+            config = json.load(f)
+
+        username = config['username']
+        password = config['password']
+        private_key_path = config['private_key_path']
+        url = config['url']
+
+        return username, password, private_key_path, url
 
     def create_invoice(self, invoice_data):
-        private_key_path, certificate_path = 'PrivateKey.pem', 'taxpayer.csr'
+        private_key_path = self.get_keys()[2]
         with open(private_key_path, "rb") as key_file:
-            pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, key_file.read())
+            private_key = key_file.read()
+
+        pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
 
         root = ET.Element("Invoice")
         header = ET.SubElement(root, "InvoiceHeader")
@@ -81,7 +90,7 @@ class SaudiEInvoice:
         signature = crypto.sign(pkey, invoice_hash, "sha256")
 
         # Load the certificate
-        with open(certificate_path, "rb") as cert_file:
+        with open('taxpayer.csr', "rb") as cert_file:
             cert = crypto.load_certificate(
                 crypto.FILETYPE_ASN1, cert_file.read())
 

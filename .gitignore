@@ -4,3 +4,4 @@ __pycache__/
 PrivateKey.pem
 publickey.pem
 taxpayer.csr
+certificate.txt
