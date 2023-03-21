@@ -7,8 +7,10 @@ import hashlib
 from PIL import Image
 import qrcode
 from genkeys import *
+from getcsid import *
 
 generatekeys()
+get_csid()
 
 invoice_data = {
     "seller_name": "ABC Company",
