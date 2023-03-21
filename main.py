@@ -87,7 +87,8 @@ class SaudiEInvoice:
         # Calculate the invoice hash
         invoice_hash = hashlib.sha256(
             ET.tostring(root, encoding='utf-8')).hexdigest()
-
+        with open('invoicehash.txt', 'w') as f:
+            f.write(invoice_hash)
         # Sign the invoice hash
         signature = crypto.sign(pkey, invoice_hash, "sha256")
 
@@ -128,7 +129,6 @@ class SaudiEInvoice:
         # Encode the signed invoice data in base64
         encoded_invoice_data = base64.b64encode(
             signed_invoice_data).decode('utf-8')
-
         return encoded_invoice_data
 
     def generate_qr_code(self, invoice_data):

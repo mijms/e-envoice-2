@@ -5,3 +5,5 @@ PrivateKey.pem
 publickey.pem
 taxpayer.csr
 certificate.txt
+secret.txt
+binarySecurityToken.txt

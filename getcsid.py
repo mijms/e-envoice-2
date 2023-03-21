@@ -31,11 +31,22 @@ def get_csid():
 
     if response.status_code == 200:
         csid = response.json()
+        print(csid)
         binarySecurityToken = response.json()['binarySecurityToken']
         decoded_token = base64.b64decode(binarySecurityToken).decode('utf-8')
+        secret = response.json()['secret']
+
         with open('certificate.txt', 'w') as f:
             f.write(decoded_token)
         print('certificate.txt'+' saved')
+
+        with open('binarySecurityToken.txt', 'w') as f:
+            f.write(binarySecurityToken)
+        print('binarySecurityToken.txt'+' saved')
+
+        with open('secret.txt', 'w') as f:
+            f.write(secret)
+        print('secret.txt'+' saved')
     else:
         print(
             f"Error: received {response.status_code} status code with message {response.json()['dispositionMessage']}")
