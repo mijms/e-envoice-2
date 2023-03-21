@@ -3,6 +3,24 @@ import base64
 import requests
 import xml.etree.ElementTree as ET
 from OpenSSL import crypto
+from genkeys import *
+
+
+generatekeys()
+invoice_data = {
+    "seller_name": "ABC Company",
+    "seller_vat": "1234567890",
+    "invoice_number": "INV-20220001",
+    "invoice_date": "2022-01-01",
+    "invoice_time": "12:30:00",
+    "invoice_amount": "1000.00",
+    "currency_code": "SAR",
+    "buyer_name": "XYZ Corporation",
+    "buyer_vat": "0987654321",
+    "line_items": [
+        {"product": "product1", "quantity": 1, "price": 20, "total": 20}
+    ]
+}
 
 
 class SaudiEInvoice:
@@ -39,11 +57,11 @@ class SaudiEInvoice:
 
         seller = ET.SubElement(header, "Seller")
         seller_name = ET.SubElement(seller, "Name")
-        seller_name.text = invoice_data["vendor"]
+        seller_name.text = invoice_data["seller_name"]
 
         buyer = ET.SubElement(header, "Buyer")
         buyer_name = ET.SubElement(buyer, "Name")
-        buyer_name.text = invoice_data["customer"]
+        buyer_name.text = invoice_data["buyer_name"]
 
         # Add invoice items
         line_items = invoice_data["line_items"]
@@ -105,3 +123,7 @@ class SaudiEInvoice:
             return True
         else:
             return False
+
+
+sei = SaudiEInvoice(config_file_path="configuration.json")
+encoded_invoice_data = sei.create_invoice(invoice_data)
