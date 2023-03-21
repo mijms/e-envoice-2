@@ -14,14 +14,14 @@ get_csid()
 
 invoice_data = {
     "seller_name": "ABC Company",
-    "seller_vat": "1234567890",
+    "seller_vat": "310864207200003",
     "invoice_number": "INV-20220001",
     "invoice_date": "2022-01-01",
     "invoice_time": "12:30:00",
     "invoice_amount": "1000.00",
     "currency_code": "SAR",
     "buyer_name": "XYZ Corporation",
-    "buyer_vat": "0987654321",
+    "buyer_vat": "310864207200003",
     "line_items": [
         {"product": "product1", "quantity": 1, "price": 20, "total": 20}
     ]
@@ -50,28 +50,43 @@ class SaudiEInvoice:
 
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
 
-        root = ET.Element("Invoice")
-        header = ET.SubElement(root, "InvoiceHeader")
+        # Create the root element
+        root = ET.Element("{urn:oasis:names:specification:ubl:schema:xsd:Invoice-2}Invoice",
+                          xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
 
         # Add invoice header data
-        ET.SubElement(header, "InvoiceNumber").text = str(
+        header = ET.SubElement(root, "InvoiceHeader")
+        ET.SubElement(header, "ID", schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:InvoiceNumber").text = str(
             invoice_data["invoice_number"])
-        ET.SubElement(
-            header, "InvoiceDate").text = invoice_data["invoice_date"]
-        seller = ET.SubElement(header, "Seller")
-        ET.SubElement(seller, "Name").text = invoice_data["seller_name"]
-        buyer = ET.SubElement(header, "Buyer")
-        ET.SubElement(buyer, "Name").text = invoice_data["buyer_name"]
+        ET.SubElement(header, "IssueDate",
+                      format="102").text = invoice_data["invoice_date"]
+        seller = ET.SubElement(header, "AccountingSupplierParty")
+        ET.SubElement(seller, "PartyName").text = invoice_data["seller_name"]
+        seller_party_identification = ET.SubElement(
+            seller, "PartyIdentification")
+        ET.SubElement(seller_party_identification, "ID",
+                      schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:VATNumber").text = invoice_data["seller_vat"]
+        buyer = ET.SubElement(header, "AccountingCustomerParty")
+        ET.SubElement(buyer, "PartyName").text = invoice_data["buyer_name"]
+        buyer_party_identification = ET.SubElement(
+            buyer, "PartyIdentification")
+        ET.SubElement(buyer_party_identification, "ID",
+                      schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:BuyerReference").text = invoice_data["buyer_vat"]
 
-        # Add invoice items
+        # Add invoice lines
         invoice_total = 0
+        invoice_lines = ET.SubElement(root, "InvoiceLine")
         for item in invoice_data["line_items"]:
-            item_elem = ET.SubElement(root, "InvoiceLine")
-            ET.SubElement(item_elem, "ItemDescription").text = item["product"]
-            ET.SubElement(item_elem, "ItemQuantity").text = str(
-                item["quantity"])
-            ET.SubElement(item_elem, "ItemPrice").text = str(item["price"])
-            item_total = ET.SubElement(item_elem, "ItemTotal")
+            item_elem = ET.SubElement(invoice_lines, "InvoiceLine")
+            item_quantity = ET.SubElement(item_elem, "InvoicedQuantity")
+            item_quantity.set("unitCode", "C62")
+            item_quantity.text = str(item["quantity"])
+            item_price = ET.SubElement(item_elem, "Price")
+            item_price.set("currencyID", invoice_data["currency_code"])
+            ET.SubElement(item_price, "PriceAmount",
+                          currencyID=invoice_data["currency_code"]).text = str(item["price"])
+            item_total = ET.SubElement(item_elem, "LineExtensionAmount",
+                                       currencyID=invoice_data["currency_code"])
             item_total.text = str(item["total"])
             invoice_total += item["total"]
 

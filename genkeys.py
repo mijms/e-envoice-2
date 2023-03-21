@@ -1,7 +1,7 @@
 import subprocess
 import os
 
-openssl_dir = r'C:\Users\aghna\scoop\apps\openssl\3.1.0\bin'
+openssl_dir = r'C:\Users\moham\scoop\apps\openssl\3.1.0\bin'
 
 
 def generatekeys():
