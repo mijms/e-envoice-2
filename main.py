@@ -3,10 +3,13 @@ import base64
 import requests
 import xml.etree.ElementTree as ET
 from OpenSSL import crypto
+import hashlib
+from PIL import Image
+import qrcode
 from genkeys import *
 
-
 generatekeys()
+
 invoice_data = {
     "seller_name": "ABC Company",
     "seller_vat": "1234567890",
@@ -49,44 +52,69 @@ class SaudiEInvoice:
         header = ET.SubElement(root, "InvoiceHeader")
 
         # Add invoice header data
-        invoice_number = ET.SubElement(header, "InvoiceNumber")
-        invoice_number.text = str(invoice_data["invoice_number"])
-
-        invoice_date = ET.SubElement(header, "InvoiceDate")
-        invoice_date.text = invoice_data["invoice_date"]
-
+        ET.SubElement(header, "InvoiceNumber").text = str(
+            invoice_data["invoice_number"])
+        ET.SubElement(
+            header, "InvoiceDate").text = invoice_data["invoice_date"]
         seller = ET.SubElement(header, "Seller")
-        seller_name = ET.SubElement(seller, "Name")
-        seller_name.text = invoice_data["seller_name"]
-
+        ET.SubElement(seller, "Name").text = invoice_data["seller_name"]
         buyer = ET.SubElement(header, "Buyer")
-        buyer_name = ET.SubElement(buyer, "Name")
-        buyer_name.text = invoice_data["buyer_name"]
+        ET.SubElement(buyer, "Name").text = invoice_data["buyer_name"]
 
         # Add invoice items
-        line_items = invoice_data["line_items"]
         invoice_total = 0
-        for i, item in enumerate(line_items):
+        for item in invoice_data["line_items"]:
             item_elem = ET.SubElement(root, "InvoiceLine")
-            item_description = ET.SubElement(item_elem, "ItemDescription")
-            item_description.text = item["product"]
-            item_quantity = ET.SubElement(item_elem, "ItemQuantity")
-            item_quantity.text = str(item["quantity"])
-            item_price = ET.SubElement(item_elem, "ItemPrice")
-            item_price.text = str(item["price"])
+            ET.SubElement(item_elem, "ItemDescription").text = item["product"]
+            ET.SubElement(item_elem, "ItemQuantity").text = str(
+                item["quantity"])
+            ET.SubElement(item_elem, "ItemPrice").text = str(item["price"])
             item_total = ET.SubElement(item_elem, "ItemTotal")
             item_total.text = str(item["total"])
             invoice_total += item["total"]
+
         # Add invoice summary data
         invoice_summary = ET.SubElement(root, "InvoiceSummary")
-        taxable_amount = ET.SubElement(invoice_summary, "TaxableAmount")
-        taxable_amount.text = str(invoice_total)
-        tax_amount = ET.SubElement(invoice_summary, "TaxAmount")
-        tax_amount.text = str(invoice_total * 0.15)  # assuming a 15% VAT rate
-        invoice_total_elem = ET.SubElement(invoice_summary, "InvoiceTotal")
-        invoice_total_elem.text = str(invoice_total + (invoice_total * 0.15))
+        ET.SubElement(invoice_summary, "TaxableAmount").text = str(
+            invoice_total)
+        ET.SubElement(invoice_summary, "TaxAmount").text = str(
+            invoice_total * 0.15)  # assuming a 15% VAT rate
+        ET.SubElement(invoice_summary, "InvoiceTotal").text = str(
+            invoice_total + (invoice_total * 0.15))
 
-        # Sign the invoice
+        # Calculate the invoice hash
+        invoice_hash = hashlib.sha256(
+            ET.tostring(root, encoding='utf-8')).hexdigest()
+
+        # Sign the invoice hash
+        signature = crypto.sign(pkey, invoice_hash, "sha256")
+
+        # Load the certificate
+        try:
+            with open('certificate.txt', "rb") as cert_file:
+                cert = cert_file.read()
+                # Get the certificate hash
+                cert_hash = hashlib.sha256(cert_file.read()).hexdigest()
+        except Exception as e:
+            print(str(e))
+
+        # Add QR code to invoice
+        qr_data = f"||1|1|{invoice_data['seller_name']}|{invoice_data['seller_vat']}|{invoice_data['invoice_number']}|{invoice_data['invoice_date']}|{invoice_data['invoice_time']}|{invoice_data['invoice_amount']}|{invoice_data['currency_code']}|{invoice_data['buyer_name']}|{invoice_data['buyer_vat']}"
+        qr_code = base64.b64encode(qr_data.encode()).decode()
+        ET.SubElement(root, "QRCode").text = qr_code
+
+        # Add signature to invoice
+        signed_properties = self.create_signed_properties(pkey)
+        signature_elem = ET.SubElement(root, "Signature")
+        signed_properties_elem = ET.SubElement(
+            signature_elem, "SignedProperties")
+        signed_properties_elem.text = signed_properties
+        signature_value_elem = ET.SubElement(signature_elem, "SignatureValue")
+        signature_value = crypto.sign(
+            pkey, signed_properties.encode(), "sha256")
+        signature_value_elem.text = base64.b64encode(signature_value).decode()
+
+        # Sign the final invoice
         signed_data = ET.tostring(root, encoding='utf-8')
         signature = crypto.sign(pkey, signed_data, "sha256")
         signed_invoice_data = signed_data + signature
@@ -101,28 +129,39 @@ class SaudiEInvoice:
 
         return encoded_invoice_data
 
-    def send_invoice(self, encoded_invoice_data):
-        username, password, _, url = self.get_keys()
+    def generate_qr_code(self, invoice_data):
+        invoice_number = str(invoice_data["invoice_number"])
+        invoice_date = invoice_data["invoice_date"]
+        invoice_time = invoice_data["invoice_time"]
+        invoice_amount = invoice_data["invoice_amount"]
+        currency_code = invoice_data["currency_code"]
+        seller_name = invoice_data["seller_name"]
+        seller_vat = invoice_data["seller_vat"]
+        buyer_name = invoice_data["buyer_name"]
+        buyer_vat = invoice_data["buyer_vat"]
 
-        headers = {
-            'Content-Type': 'text/xml;charset=UTF-8',
-            'Authorization': f'Basic {base64.b64encode(f"{username}:{password}".encode("utf-8")).decode("utf-8")}'
-        }
-        body = f"""<?xml version="1.0" encoding="UTF-8"?>
-                   <SubmitInvoiceRequest>
-                       <Invoice>{encoded_invoice_data}</Invoice>
-                   </SubmitInvoiceRequest>"""
+        # e-invoice QR code data
+        qr_data = f"||1|1|{seller_name}|{seller_vat}|{invoice_number}|{invoice_date}|{invoice_time}|{invoice_amount}|{currency_code}|{buyer_name}|{buyer_vat}||"
 
-        response = requests.post(url, headers=headers, data=body)
+        # generate QR code
+        qr = qrcode.QRCode(
+            version=None, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)
+        qr.add_data(qr_data)
+        qr.make(fit=True)
 
-        # Decode the response
-        response_data = base64.b64decode(response.content).decode('utf-8')
-        response_root = ET.fromstring(response_data)
-        # Check if the submission was successful
-        if response_root.find('Status').text == 'Success':
-            return True
-        else:
-            return False
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        # save QR code image
+        img.save("e-invoice-qr.png")
+
+        return qr
+
+    def create_signed_properties(self, pkey):
+        # Create signed properties for the invoice signature
+        # This method returns a string that should be added to the SignedProperties tag
+        signed_properties = "Signed properties data"
+        # Modify signed_properties variable to create the actual signed properties
+        return signed_properties
 
 
 sei = SaudiEInvoice(config_file_path="configuration.json")
