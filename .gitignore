@@ -7,3 +7,5 @@ taxpayer.csr
 certificate.txt
 secret.txt
 binarySecurityToken.txt
+01.py
+00.py
