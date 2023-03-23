@@ -1,6 +1,7 @@
 import json
 import base64
 import requests
+import datetime
 import xml.etree.ElementTree as ET
 from OpenSSL import crypto
 import hashlib
@@ -8,6 +9,8 @@ from PIL import Image
 import qrcode
 from genkeys import *
 from getcsid import *
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 generatekeys()
 get_csid()
@@ -50,28 +53,50 @@ class SaudiEInvoice:
 
         pkey = crypto.load_privatekey(crypto.FILETYPE_PEM, private_key)
 
-        # Create the root element
+        # Create root element for invoice
         root = ET.Element("{urn:oasis:names:specification:ubl:schema:xsd:Invoice-2}Invoice",
-                          xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2")
+                          xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2")
 
         # Add invoice header data
-        header = ET.SubElement(root, "InvoiceHeader")
-        ET.SubElement(header, "ID", schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:InvoiceNumber").text = str(
-            invoice_data["invoice_number"])
-        ET.SubElement(header, "IssueDate",
-                      format="102").text = invoice_data["invoice_date"]
-        seller = ET.SubElement(header, "AccountingSupplierParty")
-        ET.SubElement(seller, "PartyName").text = invoice_data["seller_name"]
-        seller_party_identification = ET.SubElement(
-            seller, "PartyIdentification")
-        ET.SubElement(seller_party_identification, "ID",
-                      schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:VATNumber").text = invoice_data["seller_vat"]
-        buyer = ET.SubElement(header, "AccountingCustomerParty")
-        ET.SubElement(buyer, "PartyName").text = invoice_data["buyer_name"]
-        buyer_party_identification = ET.SubElement(
-            buyer, "PartyIdentification")
-        ET.SubElement(buyer_party_identification, "ID",
-                      schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:BuyerReference").text = invoice_data["buyer_vat"]
+        invoice_header = ET.SubElement(
+            root, "{urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2}InvoiceHeader")
+        invoice_id = ET.SubElement(
+            invoice_header, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}ID")
+        invoice_id.text = invoice_data["invoice_number"]
+        invoice_issue_date = ET.SubElement(
+            invoice_header, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}IssueDate")
+        invoice_issue_date.text = datetime.datetime.now().strftime('%Y-%m-%d')
+        invoice_type_code = ET.SubElement(
+            invoice_header, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}InvoiceTypeCode")
+        invoice_type_code.text = '400'
+
+        # Add seller data
+        seller_party = ET.SubElement(
+            invoice_header, "{urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2}AccountingSupplierParty")
+        seller_party_id = ET.SubElement(
+            seller_party, "{urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2}PartyIdentification")
+        seller_party_id_text = ET.SubElement(
+            seller_party_id, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}ID")
+        seller_party_id_text.text = invoice_data["seller_vat"]
+        seller_party_name = ET.SubElement(
+            seller_party, "{urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2}PartyName")
+        seller_party_name_text = ET.SubElement(
+            seller_party_name, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}Name")
+        seller_party_name_text.text = invoice_data["seller_name"]
+        seller_party_address = ET.SubElement(
+            seller_party, "{urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2}PostalAddress")
+        seller_party_street = ET.SubElement(
+            seller_party_address, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}StreetName")
+        seller_party_street.text = invoice_data["seller_street"]
+        seller_party_building = ET.SubElement(
+            seller_party_address, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}BuildingNumber")
+        seller_party_building.text = invoice_data["seller_building"]
+        seller_party_postal_zone = ET.SubElement(
+            seller_party_address, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}postal_zone")
+        seller_party_postal_zone.text = invoice_data["postal_zone"]
+        seller_address_city_name = ET.SubElement(
+            seller_party_address, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}CityName")
+        seller_address_city_name.text = invoice_data["seller_city_name"]
 
         # Add invoice lines
         invoice_total = 0
@@ -121,30 +146,42 @@ class SaudiEInvoice:
         qr_code = base64.b64encode(qr_data.encode()).decode()
         ET.SubElement(root, "QRCode").text = qr_code
 
-        # Add signature to invoice
-        signed_properties = self.create_signed_properties(pkey)
-        signature_elem = ET.SubElement(root, "Signature")
-        signed_properties_elem = ET.SubElement(
-            signature_elem, "SignedProperties")
-        signed_properties_elem.text = signed_properties
-        signature_value_elem = ET.SubElement(signature_elem, "SignatureValue")
-        signature_value = crypto.sign(
-            pkey, signed_properties.encode(), "sha256")
-        signature_value_elem.text = base64.b64encode(signature_value).decode()
+        # Add ZATCA metadata to invoice
+        zatca_data = ET.SubElement(
+            root, "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}ZATCA_metadata")
+        ET.SubElement(
+            zatca_data, "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}CertificateHash").text = cert_hash
+        ET.SubElement(
+            zatca_data, "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}InvoiceHash").text = invoice_hash
 
-        # Sign the final invoice
-        signed_data = ET.tostring(root, encoding='utf-8')
-        signature = crypto.sign(pkey, signed_data, "sha256")
-        signed_invoice_data = signed_data + signature
+        # Add ZATCA signature to invoice
+
+        signed_properties = self.create_signed_properties(pkey)
+
+        zatca_signature_elem = ET.SubElement(
+            root, "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}ZATCA_signature")
+        ET.SubElement(zatca_signature_elem,
+                      "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}SignedProperties").text = signed_properties
+        zatca_signature_value_elem = ET.SubElement(
+            zatca_signature_elem, "{urn:zatca:metadata:schema:xsd:ZATCA_metadata-1}SignatureValue")
+        zatca_signature_value = crypto.sign(
+            pkey, signed_properties.encode(), "sha256")
+        zatca_signature_value_elem.text = base64.b64encode(
+            zatca_signature_value).decode()
+
+        # Sign the final invoice with ZATCA signature
+        zatca_signed_data = ET.tostring(root, encoding='utf-8')
+        zatca_signature = crypto.sign(pkey, zatca_signed_data, "sha256")
+        signed_zatca_invoice_data = zatca_signed_data + zatca_signature
 
         # Write the signed invoice to a file
         with open("invoice.xml", "wb") as output_file:
-            output_file.write(signed_data)
+            output_file.write(zatca_signed_data)
 
-        # Encode the signed invoice data in base64
-        encoded_invoice_data = base64.b64encode(
-            signed_invoice_data).decode('utf-8')
-        return encoded_invoice_data
+        # Encode the signed ZATCA invoice data in base64
+        encoded_zatca_invoice_data = base64.b64encode(
+            signed_zatca_invoice_data).decode('utf-8')
+        return encoded_zatca_invoice_data
 
     def generate_qr_code(self, invoice_data):
         invoice_number = str(invoice_data["invoice_number"])
