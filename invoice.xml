@@ -1,1 +1,50 @@
-<ns0:Invoice xmlns:ns0="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:ns1="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:ns2="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ns3="urn:zatca:metadata:schema:xsd:ZATCA_metadata-1" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"><ns1:InvoiceHeader><ns2:ID>INV-20220001</ns2:ID><ns2:IssueDate>2023-03-23</ns2:IssueDate><ns2:InvoiceTypeCode>400</ns2:InvoiceTypeCode><ns1:AccountingSupplierParty><ns1:PartyIdentification><ns2:ID>310864207200003</ns2:ID></ns1:PartyIdentification><ns1:PartyName><ns2:Name>ABC Company</ns2:Name></ns1:PartyName><ns1:PostalAddress><ns2:StreetName>street</ns2:StreetName><ns2:BuildingNumber>1</ns2:BuildingNumber><ns2:postal_zone>11417</ns2:postal_zone><ns2:CityName>city</ns2:CityName></ns1:PostalAddress></ns1:AccountingSupplierParty></ns1:InvoiceHeader><InvoiceLine><InvoiceLine><InvoicedQuantity unitCode="C62">1</InvoicedQuantity><Price currencyID="SAR"><PriceAmount currencyID="SAR">20</PriceAmount></Price><LineExtensionAmount currencyID="SAR">20</LineExtensionAmount></InvoiceLine></InvoiceLine><InvoiceSummary><TaxableAmount>20</TaxableAmount><TaxAmount>3.0</TaxAmount><InvoiceTotal>23.0</InvoiceTotal></InvoiceSummary><QRCode>fHwxfDF8QUJDIENvbXBhbnl8MzEwODY0MjA3MjAwMDAzfElOVi0yMDIyMDAwMXwyMDIyLTAxLTAxfDEyOjMwOjAwfDEwMDAuMDB8U0FSfFhZWiBDb3Jwb3JhdGlvbnwzMTA4NjQyMDcyMDAwMDM=</QRCode><ns3:ZATCA_metadata><ns3:CertificateHash>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</ns3:CertificateHash><ns3:InvoiceHash>25f485d2859ae30f21f5e9ae0675c1793bb1858f7b16b9e32f99dcbe33c2ba4d</ns3:InvoiceHash></ns3:ZATCA_metadata><ns3:ZATCA_signature><ns3:SignedProperties>Signed properties data</ns3:SignedProperties><ns3:SignatureValue>MEQCIFK1CVjZRKPMJyO/W1bSCKmezeMqcIoaf1cKvoxNMGmEAiAoVKi4iUqOPDsUL5rQoNuPNJOCl2yjqhepHRC3k0cAig==</ns3:SignatureValue></ns3:ZATCA_signature></ns0:Invoice>
+<ns0:Invoice xmlns:ns0="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+    xmlns:ns1="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+    xmlns:ns2="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+    xmlns:ns3="urn:zatca:metadata:schema:xsd:ZATCA_metadata-1"
+    xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2">
+    <ns1:InvoiceHeader>
+        <ns2:ID>INV-20220001</ns2:ID>
+        <ns2:IssueDate>2023-03-23</ns2:IssueDate>
+        <ns2:InvoiceTypeCode>400</ns2:InvoiceTypeCode>
+        <ns1:AccountingSupplierParty>
+            <ns1:PartyIdentification>
+                <ns2:ID>310864207200003</ns2:ID>
+            </ns1:PartyIdentification>
+            <ns1:PartyName>
+                <ns2:Name>ABC Company</ns2:Name>
+            </ns1:PartyName>
+            <ns1:PostalAddress>
+                <ns2:StreetName>street</ns2:StreetName>
+                <ns2:BuildingNumber>1</ns2:BuildingNumber>
+                <ns2:postal_zone>11417</ns2:postal_zone>
+                <ns2:CityName>city</ns2:CityName>
+            </ns1:PostalAddress>
+        </ns1:AccountingSupplierParty>
+    </ns1:InvoiceHeader>
+    <InvoiceLine>
+        <InvoiceLine>
+            <InvoicedQuantity unitCode="C62">1</InvoicedQuantity>
+            <Price currencyID="SAR">
+                <PriceAmount currencyID="SAR">20</PriceAmount>
+            </Price>
+            <LineExtensionAmount currencyID="SAR">20</LineExtensionAmount>
+        </InvoiceLine>
+    </InvoiceLine>
+    <InvoiceSummary>
+        <TaxableAmount>20</TaxableAmount>
+        <TaxAmount>3.0</TaxAmount>
+        <InvoiceTotal>23.0</InvoiceTotal>
+    </InvoiceSummary>
+    <QRCode>
+        fHwxfDF8QUJDIENvbXBhbnl8MzEwODY0MjA3MjAwMDAzfElOVi0yMDIyMDAwMXwyMDIyLTAxLTAxfDEyOjMwOjAwfDEwMDAuMDB8U0FSfFhZWiBDb3Jwb3JhdGlvbnwzMTA4NjQyMDcyMDAwMDM=</QRCode>
+    <ns3:ZATCA_metadata>
+        <ns3:CertificateHash>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</ns3:CertificateHash>
+        <ns3:InvoiceHash>25f485d2859ae30f21f5e9ae0675c1793bb1858f7b16b9e32f99dcbe33c2ba4d</ns3:InvoiceHash>
+    </ns3:ZATCA_metadata>
+    <ns3:ZATCA_signature>
+        <ns3:SignedProperties>Signed properties data</ns3:SignedProperties>
+        <ns3:SignatureValue>
+            MEQCIFK1CVjZRKPMJyO/W1bSCKmezeMqcIoaf1cKvoxNMGmEAiAoVKi4iUqOPDsUL5rQoNuPNJOCl2yjqhepHRC3k0cAig==</ns3:SignatureValue>
+    </ns3:ZATCA_signature>
+</ns0:Invoice>
