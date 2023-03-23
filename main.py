@@ -18,6 +18,10 @@ get_csid()
 invoice_data = {
     "seller_name": "ABC Company",
     "seller_vat": "310864207200003",
+    "seller_street": "street",
+    "seller_building": "1",
+    "postal_zone": "11417",
+    "seller_city_name": "city",
     "invoice_number": "INV-20220001",
     "invoice_date": "2022-01-01",
     "invoice_time": "12:30:00",
