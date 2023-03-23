@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <ns0:Invoice xmlns:ns0="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
     xmlns:ns1="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
     xmlns:ns2="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
@@ -45,3 +46,6 @@
             MEUCID7CP+1dhxyZ42FTHH3WnUkcLkaFxku/pzGx/tvRy3kiAiEA2SOTwtgSuwsKPfvPHBBhzqeokQ7EodiCPMHGHFvstlk=</ns3:SignatureValue>
     </ns3:ZATCA_signature>
 </ns0:Invoice>
+=======
+<ns0:Invoice xmlns:ns0="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"><InvoiceHeader><ID schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:InvoiceNumber">INV-20220001</ID><IssueDate format="102">2022-01-01</IssueDate><AccountingSupplierParty><PartyName>ABC Company</PartyName><PartyIdentification><ID schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:VATNumber">310864207200003</ID></PartyIdentification></AccountingSupplierParty><AccountingCustomerParty><PartyName>XYZ Corporation</PartyName><PartyIdentification><ID schemeID="urn:oasis:names:specification:ubl:codelist:cbc-schemeID-1.0:BuyerReference">310864207200003</ID></PartyIdentification></AccountingCustomerParty></InvoiceHeader><InvoiceLine><InvoiceLine><InvoicedQuantity unitCode="C62">1</InvoicedQuantity><Price currencyID="SAR"><PriceAmount currencyID="SAR">20</PriceAmount></Price><LineExtensionAmount currencyID="SAR">20</LineExtensionAmount></InvoiceLine></InvoiceLine><InvoiceSummary><TaxableAmount>20</TaxableAmount><TaxAmount>3.0</TaxAmount><InvoiceTotal>23.0</InvoiceTotal></InvoiceSummary><QRCode>fHwxfDF8QUJDIENvbXBhbnl8MzEwODY0MjA3MjAwMDAzfElOVi0yMDIyMDAwMXwyMDIyLTAxLTAxfDEyOjMwOjAwfDEwMDAuMDB8U0FSfFhZWiBDb3Jwb3JhdGlvbnwzMTA4NjQyMDcyMDAwMDM=</QRCode><Signature><SignedProperties>Signed properties data</SignedProperties><SignatureValue>MEYCIQCxBRLgJ/JJlB768lV3B4LRgbvAAo2MZa116glp/0gkUwIhAOASaaxaDOtWdZyzgP9yqdRs4S9endpTCnjFJgAFpuQf</SignatureValue></Signature></ns0:Invoice>
+>>>>>>> c590c74a1b8327fe47fb8110ed5eeff887f6f96c

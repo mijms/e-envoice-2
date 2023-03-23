@@ -11,25 +11,29 @@ INVOICE_REPORTING_URL = 'https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-p
 
 # Load files
 with open(BINARY_SECURITY_TOKEN_FILE, "rb") as file:
-    binarySecurityToken = file.read()
+    binarySecurityToken = file.read().strip()
 
 with open(SECRET_FILE, "rb") as file:
-    secret = file.read()
+    secret = file.read().strip()
 
 with open(INVOICE_HASH_FILE, "rb") as file:
-    invoicehash = file.read().decode('utf-8')
+    invoicehash = file.read().decode('utf-8').strip()
 
 with open(INVOICE_FILE, "rb") as file:
-    invoice = base64.b64encode(file.read()).decode('utf-8')
+    invoice = base64.b64encode(file.read()).decode('utf-8').strip()
 
 # Prepare request
+auth_str = f'{binarySecurityToken}:{secret}'
+auth2 = base64.b64encode(auth_str.encode('utf-8'))
+print(auth2)
+
 headers = {
     'accept': 'application/json',
     'accept-language': 'en',
     'Clearance-Status': '0',
     'Accept-Version': 'V2',
     'Content-Type': 'application/json',
-    'Authorization': f'Basic {binarySecurityToken}:{secret}'
+    'Authorization': f'Basic {auth2}',
 }
 
 json_data = {
@@ -48,9 +52,13 @@ try:
     response.raise_for_status()
     print(response.json())
 except requests.exceptions.HTTPError as e:
-    print(f'Error {e.response.status_code}: {e.response.text}')
+    if e.response.status_code == 401:
+        print(f'Error 401: Invalid credentials')
+    else:
+        print(f'Error {e.response.status_code}: {e.response.text}')
 except requests.exceptions.RequestException as e:
     print(f'Error: {e}')
+
 ###################################################################################################
 '''
 headers = {

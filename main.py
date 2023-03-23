@@ -17,18 +17,14 @@ get_csid()
 
 invoice_data = {
     "seller_name": "ABC Company",
-    "seller_vat": "1234567890",
-    "seller_street": "street",
-    "seller_building": "1",
-    "postal_zone": "11417",
-    "seller_city_name": "Riyadh",
+    "seller_vat": "310864207200003",
     "invoice_number": "INV-20220001",
     "invoice_date": "2022-01-01",
     "invoice_time": "12:30:00",
     "invoice_amount": "1000.00",
     "currency_code": "SAR",
     "buyer_name": "XYZ Corporation",
-    "buyer_vat": "0987654321",
+    "buyer_vat": "310864207200003",
     "line_items": [
         {"product": "product1", "quantity": 1, "price": 20, "total": 20}
     ]
@@ -102,15 +98,20 @@ class SaudiEInvoice:
             seller_party_address, "{urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2}CityName")
         seller_address_city_name.text = invoice_data["seller_city_name"]
 
-        # Add invoice items
+        # Add invoice lines
         invoice_total = 0
+        invoice_lines = ET.SubElement(root, "InvoiceLine")
         for item in invoice_data["line_items"]:
-            item_elem = ET.SubElement(root, "InvoiceLine")
-            ET.SubElement(item_elem, "ItemDescription").text = item["product"]
-            ET.SubElement(item_elem, "ItemQuantity").text = str(
-                item["quantity"])
-            ET.SubElement(item_elem, "ItemPrice").text = str(item["price"])
-            item_total = ET.SubElement(item_elem, "ItemTotal")
+            item_elem = ET.SubElement(invoice_lines, "InvoiceLine")
+            item_quantity = ET.SubElement(item_elem, "InvoicedQuantity")
+            item_quantity.set("unitCode", "C62")
+            item_quantity.text = str(item["quantity"])
+            item_price = ET.SubElement(item_elem, "Price")
+            item_price.set("currencyID", invoice_data["currency_code"])
+            ET.SubElement(item_price, "PriceAmount",
+                          currencyID=invoice_data["currency_code"]).text = str(item["price"])
+            item_total = ET.SubElement(item_elem, "LineExtensionAmount",
+                                       currencyID=invoice_data["currency_code"])
             item_total.text = str(item["total"])
             invoice_total += item["total"]
 
