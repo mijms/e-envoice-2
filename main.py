@@ -33,7 +33,7 @@ invoice_data = {
     "invoice_date": date,
     "invoice_time": time,
     "invoice_amount": "1000.00",
-    "tax_amount": "1150.00",
+    "tax_amount": "150.00",
     "currency_code": "SAR",
     "buyer_name": "XYZ Corporation",
     "buyer_vat": "310864207200003",
@@ -74,7 +74,13 @@ class SaudiEInvoice:
         qr_code = base64.b64encode(qr_data.encode()).decode()
 
         # Find the relevant elements to replace
-        ns = {'cbc': 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2'}
+        ns = {
+            'cac': 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2',
+            'cbc': 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2',
+            'ext': 'urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2',
+            'ns4': 'namespace4-URI',
+            'ns8': 'namespace8-URI'
+        }
         seller_name = root.find('.//cbc:RegistrationName', ns)
         seller_vat = root.find('.//cbc:CompanyID', ns)
         seller_street = root.find('.//cbc:StreetName', ns)
@@ -118,6 +124,19 @@ class SaudiEInvoice:
         # buyer_vat.text = invoice_data["invoice_number"]
         # Replace the line items
         line_items = root.find('LineItems', ns)
+        TaxTotal = root.find('.//cac:TaxTotal', ns)
+        TaxAmount1 = TaxTotal.find('.//cbc:TaxAmount', ns)
+        TaxSubtotal = ET.Element(TaxTotal).find('.//cbc:TaxSubtotal', ns)
+        TaxableAmount = ET.Element(TaxSubtotal).find(
+            './/cbc:TaxableAmount', ns)
+        TaxAmount = ET.Element(TaxSubtotal).find('.//ns4:TaxAmount', ns)
+        if TaxAmount1 is not None:
+            TaxAmount1.text = invoice_data["tax_amount"]
+        if TaxableAmount is not None:
+            TaxableAmount.text = invoice_data["invoice_amount"]
+        if TaxAmount is not None:
+            TaxAmount.text = invoice_data["tax_amount"]
+
         # find line items in the tepmlate file and replace it with invoice data
         if line_items is not None:
             for item in invoice_data['line_items']:
