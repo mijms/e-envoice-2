@@ -1,33 +1,50 @@
-import json
 import base64
-import xml.etree.ElementTree as ET
-from OpenSSL import crypto
 import hashlib
-from PIL import Image
+import json
+import xml.etree.ElementTree as ET
+import datetime
+import uuid
 import qrcode
+from OpenSSL import crypto
+from PIL import Image
+
 from genkeys import generatekeys
 from getcsid import get_csid
 
+id = str(uuid.uuid4())
+date = str(datetime.datetime.utcnow(
+).strftime("%Y-%m-%d"))
+time = str(datetime.datetime.utcnow(
+).strftime("%H:%M:%S"))
 generatekeys()
 get_csid()
 
+# all invoice data to used in the template
 invoice_data = {
+    "id": id,
     "seller_name": "ABC Company",
     "seller_vat": "310864207200003",
     "seller_street": "street",
     "seller_building": "1",
     "postal_zone": "11417",
     "seller_city_name": "city",
+    "seller_country_code": "SA",
     "invoice_number": "INV-20220001",
-    "invoice_date": "2022-01-01",
-    "invoice_time": "12:30:00",
+    "invoice_date": date,
+    "invoice_time": time,
     "invoice_amount": "1000.00",
     "tax_amount": "1150.00",
     "currency_code": "SAR",
     "buyer_name": "XYZ Corporation",
     "buyer_vat": "310864207200003",
+    "buyer_street": "street",
+    "buyer_building": "1",
+    "buyer_city_name": "Riyadh",
+    "buyer_country_code": "SA",
+    "buyer_postal_code": "11417",
     "line_items": [
-        {"product": "product1", "quantity": 1, "price": 1000, "total": 1000}
+        {"id": "1", "unit_code": "1", "description": "abc", "product": "product1",
+            "quantity": "1", "price": "1000", "total": "1000"}
     ]
 }
 
@@ -95,10 +112,13 @@ class SaudiEInvoice:
         invoice_amount.text = invoice_data["invoice_amount"]
         currency_code.text = invoice_data["currency_code"]
         QR.text = qr_code
+        ID.text = invoice_data["id"]
+        UUID.text = invoice_data["id"]
         # buyer_name.text = invoice_data["invoice_number"]
         # buyer_vat.text = invoice_data["invoice_number"]
         # Replace the line items
         line_items = root.find('LineItems', ns)
+        # find line items in the tepmlate file and replace it with invoice data
         if line_items is not None:
             for item in invoice_data['line_items']:
                 line_item = ET.Element('LineItem')
