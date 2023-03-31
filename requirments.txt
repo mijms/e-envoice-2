@@ -1,0 +1,4 @@
+pyopenssl
+qrcode
+Pillow
+requests

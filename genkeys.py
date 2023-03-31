@@ -1,7 +1,11 @@
 import subprocess
 import os
 
-openssl_dir = r'C:\Users\moham\scoop\apps\openssl\3.1.0\bin'
+# Get current user's home directory
+home_dir = os.path.expanduser("~")
+
+# Append necessary path to OpenSSL directory
+openssl_dir = os.path.join(home_dir, "scoop", "apps", "openssl", "3.1.0", "bin")
 
 
 def generatekeys():
