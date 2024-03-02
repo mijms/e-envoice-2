@@ -6,8 +6,8 @@ import uuid
 BINARY_SECURITY_TOKEN_FILE = 'binarySecurityToken.txt'
 SECRET_FILE = 'secret.txt'
 INVOICE_HASH_FILE = 'invoicehash.txt'
-INVOICE_FILE = 'invoice.xml'
-INVOICE_REPORTING_URL = 'https://gw-fatoora.zatca.gov.sa/e-invoicing/developer-portal/invoices/reporting/single'
+INVOICE_FILE = 'out.xml'
+INVOICE_REPORTING_URL = 'https://gw-fatoora.zatca.gov.sa/e-invoicing/core/invoices/reporting/single'
 
 # Load files
 with open(BINARY_SECURITY_TOKEN_FILE, "rb") as file:

@@ -1,29 +1,29 @@
 import base64
-import hashlib
 import json
 import xml.etree.ElementTree as ET
 import datetime
 import uuid
 import qrcode
+import hashlib
 from OpenSSL import crypto
 from PIL import Image
 
-from genkeys import generatekeys
-from getcsid import get_csid
+# from genkeys import generatekeys
+# from getcsid import get_csid
 
 id = str(uuid.uuid4())
 date = str(datetime.datetime.utcnow(
 ).strftime("%Y-%m-%d"))
 time = str(datetime.datetime.utcnow(
 ).strftime("%H:%M:%S"))
-generatekeys()
-get_csid()
+# generatekeys()
+# get_csid()
 
 # all invoice data to used in the template
 invoice_data = {
     "id": id,
     "seller_name": "ABC Company",
-    "seller_vat": "310864207200003",
+    "seller_vat": "302003631500003",
     "seller_street": "street",
     "seller_building": "1",
     "postal_zone": "11417",
@@ -152,6 +152,8 @@ class SaudiEInvoice:
         # Calculate the invoice hash and sign it
         invoice_hash = hashlib.sha256(
             ET.tostring(root, encoding='utf-8')).hexdigest()
+        with open('invoicehash.txt', 'w') as f:
+            f.write(invoice_hash)
         signature = crypto.sign(pkey, invoice_hash, "sha256")
 
         # Load the certificate, get its hash, and sign the final invoice with ZATCA signature
@@ -163,6 +165,7 @@ class SaudiEInvoice:
         zatca_signed_data = ET.tostring(root, encoding='utf-8')
         signed_zatca_invoice_data = zatca_signed_data + zatca_signature
         # Write the signed invoice to a file
+        tree._setroot(root)
         tree.write('invoice.xml')
 
         # Encode the signed ZATCA invoice data in base64

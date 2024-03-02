@@ -1,6 +1,6 @@
 {
-  "username": "your_username_here",
-  "password": "your_password_here",
+  "username": "MIIB6jCCAZCgAwIBAgIGAYvGGiU9MAoGCCqGSM49BAMCMBUxEzARBgNVBAMMCmVJbnZvaWNpbmcwHhcNMjMxMTEzMDAzNDM5WhcNMjgxMTEyMjEwMDAwWjBHMQswCQYDVQQGEwJTQTEUMBIGA1UECwwLZXhhbXBsZSBjby4xDjAMBgNVBAoMBVphdGNhMRIwEAYDVQQDDAkxMjcuMC4wLjEwVjAQBgcqhkjOPQIBBgUrgQQACgNCAASaPOZSRTMskuJA+2a4aOYpPI3JweIpTPehDPbvQsrn/U1os3aeoD2paP1Khgq7KJSZxkqBORMdfmLgnqvvpHsGo4GcMIGZMAwGA1UdEwEB/wQCMAAwgYgGA1UdEQSBgDB+pHwwejEgMB4GA1UEBAwXMS1EZXZpY2V8Mi0yMzR8My1leGFtcGwxHzAdBgoJkiaJk/IsZAEBDA8zMTAwOTQwMTAzMDAwMDMxDTALBgNVBAwMBDEwMDAxDzANBgNVBBoMBlJpeWFkaDEVMBMGA1UEDwwMY29uc3RydWN0aW9uMAoGCCqGSM49BAMCA0gAMEUCIE5n+dbR5P+8D50fs+zWohC0MKTbX7mWjPl/aJd1zfBZAiEAsP4PN/IkRVdxWK4b8eX5AHKDcz5muJ2VnSJVME+VxYY=",
+  "password": "u7R5rVA4gh9pKmeijXQ3nd8dg4elguggDZBppvuscwg=",
   "private_key_path": "PrivateKey.pem",
   "public_key_path": "publickey.pem",
   "certificate_path": "taxpayer.csr",
